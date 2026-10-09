@@ -3,388 +3,808 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وفير - إدارة الراتب والادخار</title>
+    <title>سُعرة AI PRO - المنصة المتكاملة لإدارة الوزن واللياقة</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f4f7f6; color: #1e293b; }
-        .header-bg { background-color: #0d7a5f; }
-        .card-white { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03); }
-        .badge-green { background-color: #d1fae5; color: #065f46; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #060913;
+            color: #f1f5f9;
+        }
+        .bg-card {
+            background-color: #0e1626;
+            border: 1px solid #1e293b;
+        }
+        .neon-glow-emerald {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #080e1a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950 custom-scrollbar">
 
-    <!-- Header -->
-    <header class="header-bg text-white sticky top-0 z-40 px-6 py-3.5 shadow-md">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
+    <!-- Header / Navbar -->
+    <header class="bg-[#090f1d]/90 border-b border-slate-800/80 sticky top-0 z-50 backdrop-blur-md px-4 sm:px-8 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center text-emerald-950 text-xl font-bold">
-                    <i class="fa-solid fa-wallet"></i>
+                <div class="w-11 h-11 bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 rounded-2xl flex items-center justify-center text-2xl font-black neon-glow-emerald">
+                    <i class="fa-solid fa-fire-flame-curved"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-black">وفير</h1>
-                        <span class="bg-amber-400 text-emerald-950 text-[10px] font-extrabold px-2 py-0.5 rounded-md">المساعد الذكي</span>
+                        <span class="text-xl font-black text-white tracking-wide">سُعرة</span>
+                        <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-md shadow">AI PRO</span>
                     </div>
-                    <p class="text-[11px] text-emerald-100 font-medium">إدارة الراتب والادخار والمصاريف التفاعلية</p>
+                    <p class="text-[11px] text-slate-400 font-bold">المطور: انس محمد العسيلان</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <button onclick="toggleSubscribersModal()" class="px-3.5 py-2 rounded-xl bg-emerald-800/80 hover:bg-emerald-800 text-white text-xs font-bold flex items-center gap-2 border border-emerald-600/40">
-                    <i class="fa-solid fa-users text-amber-300"></i>
-                    <span>المشتركين (5 ر.س)</span>
+            <!-- Navigation Tabs -->
+            <div class="flex items-center gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 overflow-x-auto max-w-full">
+                <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-4 py-2 rounded-xl text-xs font-black transition bg-emerald-500 text-slate-950 shadow">
+                    <i class="fa-solid fa-chart-pie ml-1"></i> لوحة التحكّم
                 </button>
-                <button onclick="toggleShortcutsModal()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 text-xs font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-bolt"></i>
-                    <span>محاكاة سحب بنكي</span>
+                <button onclick="switchTab('profile')" id="tabBtnProfile" class="px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-user-gear text-amber-400 ml-1"></i> الملف الجسدي
+                </button>
+                <button onclick="switchTab('steps')" id="tabBtnSteps" class="px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-shoe-prints text-cyan-400 ml-1"></i> الخطوات
+                </button>
+                <button onclick="switchTab('scanner')" id="tabBtnScanner" class="px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-camera text-emerald-400 ml-1"></i> الماسح الذكي
                 </button>
             </div>
+
+            <button onclick="openAddMealModal()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-4 py-2 rounded-xl shadow transition">
+                + إضافة وجبة
+            </button>
+
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-4 py-6 space-y-6 w-full flex-1">
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-6 w-full flex-1">
 
-        <!-- Top Summary Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <div class="card-white p-4 border-emerald-500/30 flex items-start justify-between">
-                <div class="space-y-1">
-                    <span class="text-xs font-bold text-slate-500">الراتب الشهري</span>
-                    <p class="text-2xl font-black text-slate-800" id="displaySalary">2,400 <span class="text-xs font-bold text-emerald-600">ر.س.</span></p>
-                    <span class="text-[10px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-500"></i> المبلغ المعتمد الرئيسي</span>
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <div id="sectionDashboard" class="space-y-6">
+
+            <!-- Body Weight & Goal Header Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-emerald-950/30 to-slate-900 border border-emerald-500/30 p-6 rounded-3xl space-y-4 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <span class="text-xs font-black text-emerald-400 uppercase tracking-widest"><i class="fa-solid fa-bullseye ml-1"></i> خطة الهدف المحددة</span>
+                        <h2 class="text-xl font-black text-white flex items-center gap-2" id="dashGoalTitle">
+                            خسارة وزن ببطء وتنشيف (خسارة fat)
+                        </h2>
+                        <p class="text-xs text-slate-400 font-bold" id="dashProfileSub">
+                            الوزن الحالي: <span class="text-white" id="dashCurrWeight">78</span> كجم | المستهدف: <span class="text-emerald-400" id="dashTargetWeight">70</span> كجم | الطول: <span class="text-white" id="dashHeight">175</span> سم
+                        </p>
+                    </div>
+
+                    <button onclick="switchTab('profile')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2.5 rounded-2xl text-xs font-black transition">
+                        <i class="fa-solid fa-sliders text-amber-400 ml-1"></i> تعديل القياسات والهدف
+                    </button>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-money-bill-wave"></i>
+
+                <!-- Weight Progress Bar -->
+                <div class="space-y-1.5 border-t border-slate-800/80 pt-3">
+                    <div class="flex justify-between text-xs font-extrabold text-slate-300">
+                        <span>نسبة الإنجاز نحو الوزن المستهدف</span>
+                        <span class="text-emerald-400 font-black" id="dashWeightProgressPercent">37.5%</span>
+                    </div>
+                    <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800">
+                        <div id="dashWeightProgressBar" class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full transition-all duration-500" style="width: 37.5%"></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="card-white p-4 border-emerald-500/40 flex items-start justify-between">
-                <div class="space-y-1">
-                    <span class="text-xs font-bold text-slate-500">الراتب المتبقي للصرف</span>
-                    <p class="text-2xl font-black text-slate-800" id="displayRemaining">620 <span class="text-xs font-bold text-emerald-600">ر.س.</span></p>
-                    <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1"><i class="fa-solid fa-chart-line"></i> فائض القوة الشرائية المتاحة</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-scale-balanced"></i>
-                </div>
-            </div>
-
-            <div class="card-white p-4 border-rose-300 flex items-start justify-between">
-                <div class="space-y-1">
-                    <span class="text-xs font-bold text-slate-500">إجمالي المصاريف والالتزامات</span>
-                    <p class="text-2xl font-black text-rose-600" id="displayExpenses">1,300 <span class="text-xs font-bold text-rose-600">ر.س.</span></p>
-                    <span class="text-[10px] text-rose-500 font-bold" id="expensesRatio">54% من إجمالي دخل الشهر</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-receipt"></i>
-                </div>
-            </div>
-
-            <div class="card-white p-4 border-amber-300 flex items-start justify-between">
-                <div class="space-y-1">
-                    <span class="text-xs font-bold text-slate-500">مبلغ الادخار المستهدف</span>
-                    <p class="text-2xl font-black text-amber-600" id="displaySavings">480 <span class="text-xs font-bold text-amber-600">ر.س.</span></p>
-                    <span class="text-[10px] text-amber-600 font-bold" id="savingsRatio">20% نسبة ادخارك المستهدفة</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-piggy-bank"></i>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="card-white p-5 space-y-3">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-bar text-emerald-600"></i> مؤشر استخدام الراتب
-                    </h2>
-                    <p class="text-[11px] text-slate-400">توزيع المصاريف، الادخار، والمبلغ الحر المتبقي من الراتب</p>
-                </div>
-                <span class="badge-green px-3 py-1 rounded-full text-xs font-black" id="statusBadge">وضع ممتاز</span>
-            </div>
-
-            <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden flex">
-                <div id="barRemaining" class="bg-emerald-500 h-full transition-all duration-500" style="width: 26%"></div>
-                <div id="barSavings" class="bg-amber-400 h-full transition-all duration-500" style="width: 20%"></div>
-                <div id="barExpenses" class="bg-rose-500 h-full transition-all duration-500" style="width: 54%"></div>
-            </div>
-
-            <div class="flex items-center justify-end gap-6 text-xs font-bold text-slate-600 pt-1">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span>المتبقي الحر: <span id="legendRemainingText">26%</span></span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-                    <span>الادخار المستهدف: <span id="legendSavingsText">20%</span></span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                    <span>المصاريف والالتزامات: <span id="legendExpensesText">54%</span></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Inputs and Chart -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            <!-- Chart Box -->
-            <div class="card-white p-5 flex flex-col justify-between space-y-4">
-                <div>
-                    <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-emerald-600"></i> الرسم البياني للتوزيع
-                    </h3>
-                    <p class="text-[11px] text-slate-400">نظرة شاملة حول نسبة الصرف والادخار</p>
-                </div>
+            <!-- Metric Cards Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 
-                <div class="w-48 h-48 mx-auto relative flex items-center justify-center">
-                    <canvas id="budgetChart"></canvas>
-                </div>
-
-                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-900 space-y-1">
-                    <p class="font-extrabold flex items-center gap-1.5 text-emerald-800">
-                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> النصيحة المالية الذكية
-                    </p>
-                    <p class="text-[11px] leading-relaxed" id="aiTipText">وضعك المالي ممتاز، ادخارك يحقق التوازن المطلوب للشهر!</p>
-                </div>
-            </div>
-
-            <!-- Inputs Box -->
-            <div class="lg:col-span-2 space-y-4">
-                
-                <div class="card-white p-5 space-y-3">
-                    <h3 class="text-sm font-extrabold text-slate-800">1. الراتب والدخل الشهري الأساسي</h3>
-                    <div class="relative">
-                        <input type="number" id="inputSalary" oninput="calculateBudget()" placeholder="2400" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-emerald-500 pl-12">
-                        <span class="absolute left-4 top-2.5 text-xs font-bold text-slate-400">ر.س</span>
+                <div class="bg-card p-5 rounded-3xl border-r-4 border-r-emerald-500 flex items-center justify-between shadow-xl">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">السعرات المتبقية</span>
+                        <p class="text-2xl font-black text-white" id="statRemCals">1,400 <span class="text-xs font-bold text-emerald-400">سعرة</span></p>
+                        <span class="text-[10px] text-slate-400 font-bold" id="statTotalTargetCals">المستهدف اليومي: 1,900 سعرة</span>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-utensils"></i>
                     </div>
                 </div>
 
-                <div class="card-white p-5 space-y-3">
-                    <h3 class="text-sm font-extrabold text-slate-800">2. مبلغ الادخار المقتطع</h3>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-slate-500">تحديد نسب سريعة:</span>
-                        <div class="grid grid-cols-4 gap-1.5 w-full">
-                            <button onclick="setSavingsPercent(10)" class="py-1.5 rounded-lg bg-slate-100 text-xs font-bold text-slate-600 border">10%</button>
-                            <button onclick="setSavingsPercent(15)" class="py-1.5 rounded-lg bg-slate-100 text-xs font-bold text-slate-600 border">15%</button>
-                            <button onclick="setSavingsPercent(20)" class="py-1.5 rounded-lg bg-slate-100 text-xs font-bold text-slate-600 border">20%</button>
-                            <button onclick="setSavingsPercent(30)" class="py-1.5 rounded-lg bg-slate-100 text-xs font-bold text-slate-600 border">30%</button>
+                <div class="bg-card p-5 rounded-3xl border-r-4 border-r-cyan-400 flex items-center justify-between shadow-xl">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">خطوات المشي</span>
+                        <p class="text-2xl font-black text-cyan-400" id="statTodaySteps">7,420 <span class="text-xs font-bold text-slate-400">/ 10,000</span></p>
+                        <span class="text-[10px] text-cyan-400 font-bold" id="statStepsBurned"><i class="fa-solid fa-fire"></i> حرق 296 سعرة</span>
+                    </div>
+                    <div class="w-12 h-12 bg-cyan-400/10 border border-cyan-400/30 text-cyan-400 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-shoe-prints"></i>
+                    </div>
+                </div>
+
+                <div class="bg-card p-5 rounded-3xl border-r-4 border-r-amber-400 flex items-center justify-between shadow-xl">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">هدف البروتين اليومي</span>
+                        <p class="text-2xl font-black text-amber-400" id="statProtein">63g <span class="text-xs font-bold text-slate-400" id="statTargetProtein">/ 150g</span></p>
+                        <span class="text-[10px] text-amber-400 font-bold" id="statProteinRem"><i class="fa-solid fa-dumbbell"></i> باقي 87 جرام</span>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-400/10 border border-amber-400/30 text-amber-400 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-egg"></i>
+                    </div>
+                </div>
+
+                <div class="bg-card p-5 rounded-3xl border-r-4 border-r-sky-400 flex items-center justify-between shadow-xl">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">شرب الماء</span>
+                        <p class="text-2xl font-black text-sky-400" id="statWater">2.4L <span class="text-xs font-bold text-slate-400">/ 3.5L</span></p>
+                        <button onclick="addWaterGlass()" class="text-[10px] bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-black px-2 py-0.5 rounded-lg border border-sky-500/30 transition">
+                            + كوب (250ml)
+                        </button>
+                    </div>
+                    <div class="w-12 h-12 bg-sky-400/10 border border-sky-400/30 text-sky-400 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-bottle-water"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Macros Chart & AI Dietitian Box -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Donut Chart Box -->
+                <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4 flex flex-col justify-between shadow-xl">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-emerald-400"></i> توزيع العناصر (Macros)
+                        </h3>
+                        <p class="text-[11px] text-slate-400 font-bold mt-0.5">تفصيل المستهلك مقابل الهدف اليومي</p>
+                    </div>
+
+                    <div class="w-48 h-48 mx-auto relative flex items-center justify-center">
+                        <canvas id="macrosChart"></canvas>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs font-extrabold border-t border-slate-800/80 pt-3 text-slate-300">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-400"></span> بروتين</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-400"></span> كارب</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-cyan-400"></span> دهون</span>
+                    </div>
+                </div>
+
+                <!-- AI Dietitian Chat Box -->
+                <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4 lg:col-span-2 flex flex-col justify-between shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-lg shadow">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-extrabold text-white">المستشار الغذائي الذكي (AI Coach)</h3>
+                                <p class="text-[10px] text-slate-400 font-bold">يقوم بتحليل نشاطك الحركي وهدفك لتوجيهك فوراً</p>
+                            </div>
+                        </div>
+                        <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black px-3 py-1 rounded-xl">متصل 24/7</span>
+                    </div>
+
+                    <!-- Chat Log -->
+                    <div id="aiDietChatWindow" class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-4 h-48 overflow-y-auto space-y-3 custom-scrollbar text-xs">
+                        <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-800 max-w-[90%] text-slate-200 space-y-1">
+                            <span class="text-[10px] font-black text-emerald-400 block"><i class="fa-solid fa-sparkles"></i> الكوتش الذكي:</span>
+                            <p class="leading-relaxed font-bold" id="aiChatInitialMsg">
+                                أهلاً بك! لقد تم ضبط سعراتك اليومية بناءً على هدفك. حاول الالتزام بكمية البروتين المتبقية لتسريع عملية حرق الدهون!
+                            </p>
                         </div>
                     </div>
-                    <div class="relative">
-                        <input type="number" id="inputSavings" oninput="calculateBudget()" placeholder="480" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-emerald-500 pl-12">
-                        <span class="absolute left-4 top-2.5 text-xs font-bold text-slate-400">ر.س</span>
+
+                    <!-- Input Chat -->
+                    <div class="flex items-center gap-2 pt-2 border-t border-slate-800">
+                        <input type="text" id="dietCoachInput" onkeypress="if(event.key==='Enter') sendDietCoachMsg()" placeholder="اسأل الكوتش عن أي وجبة، بديل صحي، أو تمرين..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+                        <button onclick="sendDietCoachMsg()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs shadow transition">
+                            إرسال <i class="fa-solid fa-paper-plane mr-1"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="card-white p-5 space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <h3 class="text-sm font-extrabold text-slate-800">3. الخصومات والمصاريف</h3>
-                        <button onclick="clearTransactions()" class="text-xs text-rose-500 font-bold"><i class="fa-solid fa-trash"></i> مسح السجل</button>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="expenseTitle" placeholder="جهة الصرف (مثال: إيجار / سوبرماركت)" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold">
-                        <input type="number" id="expenseAmount" placeholder="المبلغ" class="w-full sm:w-28 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold">
-                        <button onclick="addExpenseManual()" class="bg-emerald-700 text-white px-5 py-2 rounded-xl text-xs font-bold">خصم</button>
-                    </div>
-                    <div id="transactionsList" class="space-y-2 max-h-40 overflow-y-auto pt-1"></div>
+            </div>
+
+            <!-- Today Logged Meals List -->
+            <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-extrabold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-utensils text-emerald-400"></i> وجبات اليوم المسجلة (يمكنك التعديل أو الحذف)
+                    </h3>
+                    <button onclick="openAddMealModal()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-xl transition shadow">
+                        + إضافة وجبة جديدة
+                    </button>
                 </div>
 
+                <div id="loggedMealsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Dynamic Meals via JS -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 2: PROFILE & GOAL CALCULATOR ================= -->
+        <div id="sectionProfile" class="hidden space-y-6">
+
+            <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-6 shadow-2xl max-w-4xl mx-auto">
+                
+                <div class="border-b border-slate-800 pb-4 space-y-1">
+                    <h2 class="text-base font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-amber-400"></i> حاسبة الجسم والهدف الغذائي (TDEE Calculator)
+                    </h2>
+                    <p class="text-xs text-slate-400 font-bold">أدخل بياناتك الحالية وسيتم حساب السعرات والماكروز اليومية للنزول أو زيادة الوزن تلقائياً</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-300 block">الوزن الحالي (كجم):</label>
+                        <input type="number" id="inputWeight" value="78" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-extrabold text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-300 block">الوزن المستهدف (كجم):</label>
+                        <input type="number" id="inputTargetWeight" value="70" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-extrabold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-300 block">الطول (سم):</label>
+                        <input type="number" id="inputHeight" value="175" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-extrabold text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-300 block">العمر:</label>
+                        <input type="number" id="inputAge" value="25" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-extrabold text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-300 block">الجنس:</label>
+                        <select id="inputGender" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-extrabold text-white focus:outline-none focus:border-emerald-500">
+                            <option value="male" selected>ذكر</option>
+                            <option value="female">أنثى</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-300 block">مستوى النشاط البدني:</label>
+                        <select id="inputActivity" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-extrabold text-white focus:outline-none focus:border-emerald-500">
+                            <option value="1.2">خامل (عمل مكتبي)</option>
+                            <option value="1.375" selected>نشاط خفيف (مشي 1-3 أيام)</option>
+                            <option value="1.55">نشاط متوسط (تمرين 3-5 أيام)</option>
+                            <option value="1.725">نشاط عالٍ (تمرين يومي مكثف)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2 border-t border-slate-800 pt-4">
+                    <label class="text-xs font-bold text-amber-400 block"><i class="fa-solid fa-crosshairs ml-1"></i> اختر هدفك الرئيسي للوزن:</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-extrabold">
+                        <label class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 cursor-pointer flex items-center gap-2 hover:border-emerald-500 transition">
+                            <input type="radio" name="goalType" value="lose" checked class="accent-emerald-500">
+                            <div>
+                                <span class="block text-emerald-400 font-black">نزول وزن وتنشيف</span>
+                                <span class="text-[10px] text-slate-400 block font-bold">عجز سعرات (-500 سعرة)</span>
+                            </div>
+                        </label>
+
+                        <label class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 cursor-pointer flex items-center gap-2 hover:border-cyan-500 transition">
+                            <input type="radio" name="goalType" value="maintain" class="accent-cyan-500">
+                            <div>
+                                <span class="block text-cyan-400 font-black">المحافظة على الوزن</span>
+                                <span class="text-[10px] text-slate-400 block font-bold">سعرات المحافظة (0)</span>
+                            </div>
+                        </label>
+
+                        <label class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 cursor-pointer flex items-center gap-2 hover:border-amber-500 transition">
+                            <input type="radio" name="goalType" value="gain" class="accent-amber-500">
+                            <div>
+                                <span class="block text-amber-400 font-black">زيادة وزن وبناء عضل</span>
+                                <span class="text-[10px] text-slate-400 block font-bold">فائض سعرات (+400 سعرة)</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button onclick="calculateAndSaveProfile()" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black py-3.5 rounded-2xl text-xs shadow-lg transition">
+                    حفظ القياسات وإعادة احتساب السعرات والهدف <i class="fa-solid fa-calculator mr-1"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 3: STEPS TRACKER ================= -->
+        <div id="sectionSteps" class="hidden space-y-6">
+
+            <div class="bg-gradient-to-r from-cyan-500/10 via-emerald-500/10 to-slate-950 p-6 rounded-3xl border border-cyan-500/30 space-y-2 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-400 text-slate-950 flex items-center justify-center text-2xl font-black shadow-lg shadow-cyan-400/20">
+                            <i class="fa-solid fa-shoe-prints"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold text-white">تتبع المشي والنشاط الحركي</h2>
+                            <p class="text-xs text-slate-400 font-bold">إحصائيات الخطوات والمسافة المقطوعة بالمتر والحرق الحراري</p>
+                        </div>
+                    </div>
+                    <button onclick="addStepsPrompt()" class="bg-cyan-400 hover:bg-cyan-500 text-slate-950 font-black px-4 py-2 rounded-xl text-xs shadow transition">
+                        + تعديل/إضافة خطوات
+                    </button>
+                </div>
+            </div>
+
+            <!-- Steps Chart -->
+            <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
+                <h3 class="text-xs font-extrabold text-white">موزع الخطوات اليومية حسب الأوقات</h3>
+                <div class="h-64 w-full relative">
+                    <canvas id="stepsChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 4: MEAL SCANNER ================= -->
+        <div id="sectionScanner" class="hidden space-y-6">
+
+            <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-6 max-w-3xl mx-auto shadow-2xl">
+                <div class="text-center space-y-2">
+                    <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-3xl mx-auto flex items-center justify-center text-2xl neon-glow-emerald">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <h2 class="text-xl font-black text-white">الماسح الضوئي الذكي للوجبة (AI Meal Scanner)</h2>
+                    <p class="text-xs text-slate-400 font-bold">اختر نموذجاً للوجبة ليتعرف الذكاء الاصطناعي على السعرات والماكروز تلقائياً</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="simulateCameraScan('كبسة دجاج صحية مع سلطة', 520, 45, 50, 8)" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black p-3.5 rounded-2xl text-xs shadow transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-utensils"></i> تحليل: كبسة دجاج (520 سعرة)
+                    </button>
+                    <button onclick="simulateCameraScan('شيك بروتين مع شوكولاتة وشوفان', 380, 42, 35, 6)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-black p-3.5 rounded-2xl text-xs border border-slate-700 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-blender"></i> تحليل: شيك بروتين (380 سعرة)
+                    </button>
+                </div>
+
+                <!-- Result Box -->
+                <div id="scanResultCard" class="hidden bg-slate-950 border border-emerald-500/50 p-5 rounded-2xl space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h3 class="text-sm font-black text-emerald-400" id="scanMealName">تم التعرف على الوجبة!</h3>
+                        <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-black px-2.5 py-1 rounded-lg" id="scanMealCalVal">520 سعرة</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs font-black">
+                        <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-400 text-[10px] block font-bold">بروتين</span>
+                            <span class="text-amber-400" id="scanMealProtein">45g</span>
+                        </div>
+                        <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-400 text-[10px] block font-bold">كارب</span>
+                            <span class="text-emerald-400" id="scanMealCarb">50g</span>
+                        </div>
+                        <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-400 text-[10px] block font-bold">دهون</span>
+                            <span class="text-cyan-400" id="scanMealFat">8g</span>
+                        </div>
+                    </div>
+
+                    <button onclick="confirmAddScannedMeal()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl text-xs shadow transition">
+                        إضافة الوجبة لسجل اليوم فوراً <i class="fa-solid fa-plus mr-1"></i>
+                    </button>
+                </div>
             </div>
 
         </div>
 
     </main>
 
-    <!-- Modals -->
-    <div id="subscribersModal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 max-w-2xl w-full space-y-4">
-            <div class="flex items-center justify-between border-b pb-3">
-                <h3 class="font-bold text-slate-800">قاعدة بيانات المشتركين (5 ر.س / شهرياً)</h3>
-                <button onclick="toggleSubscribersModal()" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+    <!-- Modal: Add or Edit Meal -->
+    <div id="mealModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-card border border-slate-800 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-black text-white" id="modalTitle">إضافة وجبة جديدة</h3>
+                <button onclick="closeMealModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="grid grid-cols-3 gap-3 text-center">
-                <div class="bg-slate-50 p-3 rounded-xl border"><p class="text-xs text-slate-500 font-bold">المشتركين</p><p class="text-lg font-black" id="subCount">0</p></div>
-                <div class="bg-slate-50 p-3 rounded-xl border"><p class="text-xs text-slate-500 font-bold">النشطين</p><p class="text-lg font-black text-emerald-600" id="subActiveCount">0</p></div>
-                <div class="bg-slate-50 p-3 rounded-xl border"><p class="text-xs text-slate-500 font-bold">الدخل الشهري</p><p class="text-lg font-black text-amber-600" id="subTotalRevenue">0 ر.س</p></div>
+
+            <div class="space-y-3">
+                <input type="hidden" id="editMealId">
+                <div>
+                    <label class="text-xs font-bold text-slate-300 block mb-1">اسم الوجبة:</label>
+                    <input type="text" id="mInputTitle" placeholder="مثال: غداء - صدر دجاج وأرز" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-300 block mb-1">السعرات (Cal):</label>
+                        <input type="number" id="mInputCals" placeholder="450" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-300 block mb-1">البروتين (g):</label>
+                        <input type="number" id="mInputProtein" placeholder="35" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-amber-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-300 block mb-1">الكاربوهيدرات (g):</label>
+                        <input type="number" id="mInputCarb" placeholder="40" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-300 block mb-1">الدهون (g):</label>
+                        <input type="number" id="mInputFat" placeholder="10" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-cyan-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <input type="text" id="subName" placeholder="اسم المشترك" class="bg-slate-50 border rounded-xl px-3 py-2 text-xs font-bold">
-                <input type="text" id="subPhone" placeholder="رقم الجوال" class="bg-slate-50 border rounded-xl px-3 py-2 text-xs font-bold">
-                <button onclick="addSubscriber()" class="bg-emerald-700 text-white rounded-xl text-xs font-bold py-2">إضافة مشترك</button>
-            </div>
-            <div class="max-h-48 overflow-y-auto">
-                <table class="w-full text-right text-xs">
-                    <thead><tr class="text-slate-400 border-b"><th class="pb-2">الاسم</th><th class="pb-2">الجوال</th><th class="pb-2">الحالة</th><th class="pb-2 text-center">إجراء</th></tr></thead>
-                    <tbody id="subscribersTable" class="divide-y font-bold"></tbody>
-                </table>
-            </div>
+
+            <button onclick="saveMealFromModal()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl text-xs shadow transition">
+                حفظ الوجبة في السجل <i class="fa-solid fa-check mr-1"></i>
+            </button>
         </div>
     </div>
 
-    <div id="shortcutsModal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 max-w-md w-full space-y-4">
-            <div class="flex items-center justify-between border-b pb-3">
-                <h3 class="font-bold text-slate-800">ربط Apple Shortcuts والخصم التلقائي</h3>
-                <button onclick="toggleShortcutsModal()" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-xs text-slate-600 leading-relaxed">استخدم الرابط التالي للتخصيم المباشر:</p>
-            <code class="block bg-slate-100 p-3 rounded-xl text-[11px] font-mono text-emerald-800 break-all" id="shortcutUrlExample"></code>
-            <button onclick="toggleShortcutsModal()" class="w-full bg-slate-800 text-white py-2 rounded-xl text-xs font-bold">إغلاق</button>
-        </div>
-    </div>
-
-    <footer class="mt-8 text-center text-xs text-slate-400 border-t py-4 bg-white">
-        تطبيق وفير - تم التطوير بواسطة: <span class="font-extrabold text-emerald-800">انس محمد العسيلان</span>
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 bg-[#060913]">
+        حقوق التطوير محفوظة © <span class="font-extrabold text-emerald-400">انس محمد العسيلان</span> - تطبيق سُعرة AI PRO
     </footer>
 
+    <!-- Logic Script -->
     <script>
-        let salary = parseFloat(localStorage.getItem('wafir_salary')) || 2400;
-        let savings = parseFloat(localStorage.getItem('wafir_savings')) || 480;
-        let transactions = JSON.parse(localStorage.getItem('wafir_tx')) || [{ id: 1, title: 'فواتير ومستلزمات ثابته', amount: 1300 }];
-        let subscribers = JSON.parse(localStorage.getItem('wafir_subs')) || [];
-        let chartInstance = null;
+        // Profile Data State
+        let userProfile = {
+            weight: 78,
+            targetWeight: 70,
+            height: 175,
+            age: 25,
+            gender: 'male',
+            activity: 1.375,
+            goalType: 'lose',
+            targetCals: 1900,
+            targetProtein: 150
+        };
+
+        // Meals State
+        let loggedMeals = [
+            { id: 101, title: 'فطور: شوفان بحليب اللوز والموز', cals: 380, protein: 18, carb: 55, fat: 6 },
+            { id: 102, title: 'سناك: شاي أخضر وحفنة لوز', cals: 120, protein: 4, carb: 5, fat: 10 }
+        ];
+
+        let todaySteps = 7420;
+        let waterGlasses = 2.4;
+        let lastScannedMealTemp = null;
+        let macrosChartInstance = null;
+        let stepsChartInstance = null;
 
         window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('inputSalary').value = salary;
-            document.getElementById('inputSavings').value = savings;
-            document.getElementById('shortcutUrlExample').innerText = `${window.location.origin}${window.location.pathname}?amount=50&source=مصرف_الراجحي`;
-            initChart();
-            calculateBudget();
-            renderSubscribers();
+            initMacrosChart();
+            initStepsChart();
+            calculateAndSaveProfile();
+            renderMealsList();
         });
 
-        function calculateBudget() {
-            salary = parseFloat(document.getElementById('inputSalary').value) || 0;
-            savings = parseFloat(document.getElementById('inputSavings').value) || 0;
-            localStorage.setItem('wafir_salary', salary);
-            localStorage.setItem('wafir_savings', savings);
+        /* Calculate TDEE & Nutrition Goals */
+        function calculateAndSaveProfile() {
+            userProfile.weight = parseFloat(document.getElementById('inputWeight').value) || 78;
+            userProfile.targetWeight = parseFloat(document.getElementById('inputTargetWeight').value) || 70;
+            userProfile.height = parseFloat(document.getElementById('inputHeight').value) || 175;
+            userProfile.age = parseInt(document.getElementById('inputAge').value) || 25;
+            userProfile.gender = document.getElementById('inputGender').value;
+            userProfile.activity = parseFloat(document.getElementById('inputActivity').value) || 1.375;
 
-            const totalExpenses = transactions.reduce((acc, t) => acc + t.amount, 0);
-            const remaining = salary - (savings + totalExpenses);
+            const goalRadios = document.getElementsByName('goalType');
+            for (let r of goalRadios) {
+                if (r.checked) userProfile.goalType = r.value;
+            }
 
-            const expRatio = salary > 0 ? Math.round((totalExpenses / salary) * 100) : 0;
-            const savRatio = salary > 0 ? Math.round((savings / salary) * 100) : 0;
-            const remRatio = Math.max(100 - (expRatio + savRatio), 0);
+            // BMR (Mifflin-St Jeor)
+            let bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age);
+            bmr = (userProfile.gender === 'male') ? bmr + 5 : bmr - 161;
 
-            document.getElementById('displaySalary').innerHTML = `${salary.toLocaleString()} <span class="text-xs font-bold text-emerald-600">ر.س.</span>`;
-            document.getElementById('displayRemaining').innerHTML = `${remaining.toLocaleString()} <span class="text-xs font-bold text-emerald-600">ر.س.</span>`;
-            document.getElementById('displayExpenses').innerHTML = `${totalExpenses.toLocaleString()} <span class="text-xs font-bold text-rose-600">ر.س.</span>`;
-            document.getElementById('displaySavings').innerHTML = `${savings.toLocaleString()} <span class="text-xs font-bold text-amber-600">ر.س.</span>`;
+            let tdee = bmr * userProfile.activity;
 
-            document.getElementById('expensesRatio').innerText = `${expRatio}% من إجمالي دخل الشهر`;
-            document.getElementById('savingsRatio').innerText = `${savRatio}% نسبة ادخارك المستهدفة`;
+            // Goal Adjustment
+            if (userProfile.goalType === 'lose') {
+                userProfile.targetCals = Math.round(tdee - 500);
+                userProfile.targetProtein = Math.round(userProfile.weight * 2.0); // 2g per kg
+                document.getElementById('dashGoalTitle').innerText = 'خسارة وزن ببطء وتنشيف الدهون';
+            } else if (userProfile.goalType === 'gain') {
+                userProfile.targetCals = Math.round(tdee + 400);
+                userProfile.targetProtein = Math.round(userProfile.weight * 2.2);
+                document.getElementById('dashGoalTitle').innerText = 'زيادة وزن وبناء كتل عضلية';
+            } else {
+                userProfile.targetCals = Math.round(tdee);
+                userProfile.targetProtein = Math.round(userProfile.weight * 1.8);
+                document.getElementById('dashGoalTitle').innerText = 'المحافظة على الوزن واللياقة الحالية';
+            }
 
-            document.getElementById('barRemaining').style.width = `${remRatio}%`;
-            document.getElementById('barSavings').style.width = `${savRatio}%`;
-            document.getElementById('barExpenses').style.width = `${expRatio}%`;
+            // UI Update Header Profile
+            document.getElementById('dashCurrWeight').innerText = userProfile.weight;
+            document.getElementById('dashTargetWeight').innerText = userProfile.targetWeight;
+            document.getElementById('dashHeight').innerText = userProfile.height;
 
-            document.getElementById('legendRemainingText').innerText = `${remRatio}%`;
-            document.getElementById('legendSavingsText').innerText = `${savRatio}%`;
-            document.getElementById('legendExpensesText').innerText = `${expRatio}%`;
+            // Progress bar
+            let totalDiff = Math.abs(userProfile.weight - userProfile.targetWeight);
+            let percent = totalDiff > 0 ? Math.min(100, Math.round((8 / (totalDiff + 8)) * 100)) : 100;
+            document.getElementById('dashWeightProgressPercent').innerText = `${percent}%`;
+            document.getElementById('dashWeightProgressBar').style.width = `${percent}%`;
 
-            updateChart(savings, totalExpenses, Math.max(remaining, 0));
-            renderTransactions();
+            updateAllDashboardStats();
         }
 
-        function setSavingsPercent(percent) {
-            if (salary <= 0) return;
-            document.getElementById('inputSavings').value = Math.round(salary * (percent / 100));
-            calculateBudget();
-        }
+        /* Dashboard Stats Update */
+        function updateAllDashboardStats() {
+            const consumedCals = loggedMeals.reduce((acc, m) => acc + m.cals, 0);
+            const remainingCals = userProfile.targetCals - consumedCals;
 
-        function addExpenseManual() {
-            const title = document.getElementById('expenseTitle').value.trim();
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            if (!amount || amount <= 0) return;
-            transactions.unshift({ id: Date.now(), title: title || 'مصروف عام', amount: amount });
-            localStorage.setItem('wafir_tx', JSON.stringify(transactions));
-            document.getElementById('expenseTitle').value = '';
-            document.getElementById('expenseAmount').value = '';
-            calculateBudget();
-        }
+            const consumedProtein = loggedMeals.reduce((acc, m) => acc + m.protein, 0);
+            const remProtein = userProfile.targetProtein - consumedProtein;
 
-        function clearTransactions() {
-            if (confirm('مسح كافة سجل الخصومات؟')) {
-                transactions = [];
-                localStorage.setItem('wafir_tx', JSON.stringify(transactions));
-                calculateBudget();
+            document.getElementById('statRemCals').innerHTML = `${remainingCals.toLocaleString()} <span class="text-xs font-bold text-emerald-400">سعرة</span>`;
+            document.getElementById('statTotalTargetCals').innerText = `المستهدف اليومي: ${userProfile.targetCals.toLocaleString()} سعرة`;
+
+            document.getElementById('statProtein').innerHTML = `${consumedProtein}g <span class="text-xs font-bold text-slate-400">/ ${userProfile.targetProtein}g</span>`;
+            document.getElementById('statTargetProtein').innerText = `/ ${userProfile.targetProtein}g`;
+            document.getElementById('statProteinRem').innerHTML = `<i class="fa-solid fa-dumbbell"></i> باقي ${remProtein > 0 ? remProtein : 0} جرام`;
+
+            document.getElementById('statTodaySteps').innerHTML = `${todaySteps.toLocaleString()} <span class="text-xs font-bold text-slate-400">/ 10,000</span>`;
+            const burned = Math.round(todaySteps * 0.04);
+            document.getElementById('statStepsBurned').innerHTML = `<i class="fa-solid fa-fire"></i> حرق ${burned} سعرة`;
+
+            if (macrosChartInstance) {
+                const totalCarb = loggedMeals.reduce((acc, m) => acc + m.carb, 0);
+                const totalFat = loggedMeals.reduce((acc, m) => acc + m.fat, 0);
+                macrosChartInstance.data.datasets[0].data = [consumedProtein, totalCarb, totalFat];
+                macrosChartInstance.update();
             }
         }
 
-        function renderTransactions() {
-            const list = document.getElementById('transactionsList');
-            if (transactions.length === 0) {
-                list.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-2">لا توجد مصاريف مسجلة</p>`;
+        /* Render Meals List with Edit & Delete Capability */
+        function renderMealsList() {
+            const listEl = document.getElementById('loggedMealsList');
+            if (loggedMeals.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 font-bold col-span-3 text-center py-6">لم تقم بتسجيل أي وجبة اليوم بعد</p>`;
                 return;
             }
-            list.innerHTML = transactions.map(t => `
-                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border text-xs font-bold">
-                    <span class="text-slate-700">${t.title}</span>
-                    <span class="text-rose-600 font-extrabold">-${t.amount.toLocaleString()} ر.س</span>
+
+            listEl.innerHTML = loggedMeals.map(m => `
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs font-bold">
+                    <div class="flex items-center justify-between">
+                        <span class="text-white font-black">${m.title}</span>
+                        <span class="text-emerald-400 font-black">${m.cals} سعرة</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-900">
+                        <span>بروتين: ${m.protein}g</span>
+                        <span>كارب: ${m.carb}g</span>
+                        <span>دهون: ${m.fat}g</span>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button onclick="openEditMealModal(${m.id})" class="text-[10px] text-amber-400 hover:underline"><i class="fa-solid fa-pen"></i> تعديل</button>
+                        <button onclick="deleteMeal(${m.id})" class="text-[10px] text-rose-400 hover:underline"><i class="fa-solid fa-trash"></i> حذف</button>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function initChart() {
-            const ctx = document.getElementById('budgetChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
+        /* Add / Edit Meal Modal Functions */
+        function openAddMealModal() {
+            document.getElementById('modalTitle').innerText = 'إضافة وجبة جديدة';
+            document.getElementById('editMealId').value = '';
+            document.getElementById('mInputTitle').value = '';
+            document.getElementById('mInputCals').value = '';
+            document.getElementById('mInputProtein').value = '';
+            document.getElementById('mInputCarb').value = '';
+            document.getElementById('mInputFat').value = '';
+            document.getElementById('mealModal').classList.remove('hidden');
+        }
+
+        function openEditMealModal(id) {
+            const meal = loggedMeals.find(m => m.id === id);
+            if (!meal) return;
+            document.getElementById('modalTitle').innerText = 'تعديل بيانات الوجبة';
+            document.getElementById('editMealId').value = meal.id;
+            document.getElementById('mInputTitle').value = meal.title;
+            document.getElementById('mInputCals').value = meal.cals;
+            document.getElementById('mInputProtein').value = meal.protein;
+            document.getElementById('mInputCarb').value = meal.carb;
+            document.getElementById('mInputFat').value = meal.fat;
+            document.getElementById('mealModal').classList.remove('hidden');
+        }
+
+        function closeMealModal() {
+            document.getElementById('mealModal').classList.add('hidden');
+        }
+
+        function saveMealFromModal() {
+            const editId = document.getElementById('editMealId').value;
+            const title = document.getElementById('mInputTitle').value.trim() || 'وجبة مخصصة';
+            const cals = parseInt(document.getElementById('mInputCals').value) || 0;
+            const protein = parseInt(document.getElementById('mInputProtein').value) || 0;
+            const carb = parseInt(document.getElementById('mInputCarb').value) || 0;
+            const fat = parseInt(document.getElementById('mInputFat').value) || 0;
+
+            if (editId) {
+                const index = loggedMeals.findIndex(m => m.id == editId);
+                if (index !== -1) {
+                    loggedMeals[index] = { id: parseInt(editId), title, cals, protein, carb, fat };
+                }
+            } else {
+                loggedMeals.unshift({ id: Date.now(), title, cals, protein, carb, fat });
+            }
+
+            closeMealModal();
+            renderMealsList();
+            updateAllDashboardStats();
+        }
+
+        function deleteMeal(id) {
+            if (confirm("هل أنت تأكد من رغبتك في حذف هذه الوجبة؟")) {
+                loggedMeals = loggedMeals.filter(m => m.id !== id);
+                renderMealsList();
+                updateAllDashboardStats();
+            }
+        }
+
+        /* Water Glass Counter */
+        function addWaterGlass() {
+            waterGlasses += 0.25;
+            document.getElementById('statWater').innerHTML = `${waterGlasses.toFixed(1)}L <span class="text-xs font-bold text-slate-400">/ 3.5L</span>`;
+        }
+
+        /* AI Camera Scanner Simulation */
+        function simulateCameraScan(name, cals, protein, carb, fat) {
+            lastScannedMealTemp = { name, cals, protein, carb, fat };
+            document.getElementById('scanMealName').innerText = `تم التعرف: ${name}`;
+            document.getElementById('scanMealCalVal').innerText = `${cals} سعرة`;
+            document.getElementById('scanMealProtein').innerText = `${protein}g`;
+            document.getElementById('scanMealCarb').innerText = `${carb}g`;
+            document.getElementById('scanMealFat').innerText = `${fat}g`;
+
+            document.getElementById('scanResultCard').classList.remove('hidden');
+        }
+
+        function confirmAddScannedMeal() {
+            if (!lastScannedMealTemp) return;
+            loggedMeals.unshift({
+                id: Date.now(),
+                title: lastScannedMealTemp.name,
+                cals: lastScannedMealTemp.cals,
+                protein: lastScannedMealTemp.protein,
+                carb: lastScannedMealTemp.carb,
+                fat: lastScannedMealTemp.fat
+            });
+
+            renderMealsList();
+            updateAllDashboardStats();
+            document.getElementById('scanResultCard').classList.add('hidden');
+            switchTab('dashboard');
+        }
+
+        /* Steps Prompt */
+        function addStepsPrompt() {
+            const added = prompt("أدخل عدد الخطوات الإضافية التي مشيتها:");
+            if (added && !isNaN(added)) {
+                todaySteps += parseInt(added);
+                updateAllDashboardStats();
+            }
+        }
+
+        /* AI Coach Chat */
+        function sendDietCoachMsg() {
+            const input = document.getElementById('dietCoachInput');
+            const val = input.value.trim();
+            if (!val) return;
+
+            const chatWin = document.getElementById('aiDietChatWindow');
+            chatWin.innerHTML += `
+                <div class="bg-emerald-500/10 border border-emerald-500/30 p-2.5 rounded-2xl text-emerald-300 font-bold max-w-[85%] mr-auto text-left">
+                    ${val}
+                </div>
+            `;
+
+            let reply = `للوصول إلى هدفك في (${userProfile.goalType === 'lose' ? 'النزول والتنشيف' : 'الزيادة العضلية'})، تأكد من استهلاك هدفك البالغ ${userProfile.targetProtein}g بروتين يومياً!`;
+
+            setTimeout(() => {
+                chatWin.innerHTML += `
+                    <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-800 max-w-[90%] text-slate-200 space-y-1">
+                        <span class="text-[10px] font-black text-emerald-400 block"><i class="fa-solid fa-sparkles"></i> الكوتش الذكي:</span>
+                        <p class="leading-relaxed font-bold">${reply}</p>
+                    </div>
+                `;
+                chatWin.scrollTop = chatWin.scrollHeight;
+            }, 300);
+
+            input.value = '';
+        }
+
+        /* Charts Init */
+        function initMacrosChart() {
+            const ctx = document.getElementById('macrosChart').getContext('2d');
+            macrosChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['الادخار', 'المصاريف', 'المتبقي الحر'],
-                    datasets: [{ data: [20, 54, 26], backgroundColor: ['#fbbf24', '#f43f5e', '#10b981'], borderWidth: 2 }]
+                    labels: ['بروتين', 'كارب', 'دهون'],
+                    datasets: [{
+                        data: [22, 60, 18],
+                        backgroundColor: ['#f59e0b', '#10b981', '#06b6d4'],
+                        borderWidth: 2,
+                        borderColor: '#0e1626'
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '72%' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '75%'
+                }
             });
         }
 
-        function updateChart(sav, exp, rem) {
-            if (!chartInstance) return;
-            chartInstance.data.datasets[0].data = [sav, exp, rem];
-            chartInstance.update();
+        function initStepsChart() {
+            const ctx = document.getElementById('stepsChart').getContext('2d');
+            stepsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['6 ص', '9 ص', '12 م', '3 م', '6 م', '9 م'],
+                    datasets: [{
+                        label: 'الخطوات',
+                        data: [800, 1500, 2100, 900, 1820, 300],
+                        backgroundColor: '#06b6d4',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
         }
 
-        function addSubscriber() {
-            const name = document.getElementById('subName').value.trim();
-            const phone = document.getElementById('subPhone').value.trim();
-            if (!name || !phone) return;
-            subscribers.unshift({ id: Date.now(), name, phone, status: 'نشط' });
-            localStorage.setItem('wafir_subs', JSON.stringify(subscribers));
-            document.getElementById('subName').value = '';
-            document.getElementById('subPhone').value = '';
-            renderSubscribers();
-        }
+        /* Tab Switcher */
+        function switchTab(tab) {
+            document.getElementById('sectionDashboard').classList.add('hidden');
+            document.getElementById('sectionProfile').classList.add('hidden');
+            document.getElementById('sectionSteps').classList.add('hidden');
+            document.getElementById('sectionScanner').classList.add('hidden');
 
-        function renderSubscribers() {
-            document.getElementById('subCount').innerText = subscribers.length;
-            document.getElementById('subActiveCount').innerText = subscribers.filter(s => s.status === 'نشط').length;
-            document.getElementById('subTotalRevenue').innerText = `${subscribers.length * 5} ر.س`;
-            const tbody = document.getElementById('subscribersTable');
-            tbody.innerHTML = subscribers.map(s => `
-                <tr><td class="py-2">${s.name}</td><td class="py-2">${s.phone}</td><td class="py-2 text-emerald-600">${s.status}</td><td class="py-2 text-center"><button onclick="deleteSub(${s.id})" class="text-rose-500"><i class="fa-solid fa-trash"></i></button></td></tr>
-            `).join('');
-        }
+            document.getElementById('tabBtnDashboard').className = "px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white transition";
+            document.getElementById('tabBtnProfile').className = "px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white transition";
+            document.getElementById('tabBtnSteps').className = "px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white transition";
+            document.getElementById('tabBtnScanner').className = "px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white transition";
 
-        function deleteSub(id) {
-            subscribers = subscribers.filter(s => s.id !== id);
-            localStorage.setItem('wafir_subs', JSON.stringify(subscribers));
-            renderSubscribers();
+            if (tab === 'dashboard') {
+                document.getElementById('sectionDashboard').classList.remove('hidden');
+                document.getElementById('tabBtnDashboard').className = "px-4 py-2 rounded-xl text-xs font-black transition bg-emerald-500 text-slate-950 shadow";
+            } else if (tab === 'profile') {
+                document.getElementById('sectionProfile').classList.remove('hidden');
+                document.getElementById('tabBtnProfile').className = "px-4 py-2 rounded-xl text-xs font-black transition bg-amber-400 text-slate-950 shadow";
+            } else if (tab === 'steps') {
+                document.getElementById('sectionSteps').classList.remove('hidden');
+                document.getElementById('tabBtnSteps').className = "px-4 py-2 rounded-xl text-xs font-black transition bg-cyan-400 text-slate-950 shadow";
+            } else if (tab === 'scanner') {
+                document.getElementById('sectionScanner').classList.remove('hidden');
+                document.getElementById('tabBtnScanner').className = "px-4 py-2 rounded-xl text-xs font-black transition bg-emerald-500 text-slate-950 shadow";
+            }
         }
-
-        function toggleSubscribersModal() { document.getElementById('subscribersModal').classList.toggle('hidden'); }
-        function toggleShortcutsModal() { document.getElementById('shortcutsModal').classList.toggle('hidden'); }
     </script>
 </body>
 </html>
