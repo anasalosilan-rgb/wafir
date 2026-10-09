@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وفير VIP - نظام إدارة الدخل والادخار الذكي</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0b1320;
+            color: #f1f5f9;
+        }
+        .bg-card {
+            background-color: #111c2e;
+            border: 1px solid #1e2d42;
+        }
+        .bg-card-hover:hover {
+            background-color: #16243b;
+        }
+        .text-emerald-gold {
+            background: linear-gradient(135deg, #10b981, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white custom-scrollbar">
+
+    <!-- 1. شاشة التسجيل للمستخدم الجديد -->
+    <div id="registrationScreen" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-card max-w-md w-full p-8 rounded-3xl border border-slate-800 shadow-2xl text-center space-y-6">
+            <div class="w-20 h-20 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl mx-auto flex items-center justify-center text-3xl text-emerald-400 shadow-inner">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-white">مرحباً بك في وفير VIP</h2>
+                <p class="text-xs text-slate-400 mt-1 font-bold">منصتك الشخصية لإدارة الراتب والمكافآت وتتبع الخصومات</p>
+            </div>
+            <div class="space-y-4 text-right">
+                <div>
+                    <label class="text-xs font-bold text-slate-300 block mb-1">الاسم الكامل</label>
+                    <input type="text" id="regName" placeholder="أدخل اسمك الكريم" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500 font-bold">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-300 block mb-1">رقم الجوال</label>
+                    <input type="tel" id="regPhone" placeholder="05xxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500 font-bold">
+                </div>
+            </div>
+            <button onclick="submitUserRegistration()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3.5 rounded-xl text-xs transition duration-200 shadow-lg shadow-emerald-500/20">
+                الدخول للتطبيق <i class="fa-solid fa-arrow-left mr-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="bg-[#0e1726]/90 border-b border-slate-800/80 sticky top-0 z-40 backdrop-blur-md px-4 sm:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <!-- Logo & User Info -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 rounded-xl flex items-center justify-center text-lg font-black cursor-pointer shadow-inner" ondblclick="openAdminModalPrompt()" title="الوصول للأدمن">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg font-black text-white tracking-wide">وفير</span>
+                        <span class="bg-emerald-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-md">VIP</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 font-bold" id="welcomeUserBanner">أهلاً بك، مستخدم وفير</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
+                <button onclick="switchTab('main')" id="tabBtnMain" class="px-4 py-2 rounded-lg text-xs font-extrabold transition bg-emerald-500 text-slate-950 shadow">
+                    <i class="fa-solid fa-house ml-1"></i> الرئيسية
+                </button>
+                <button onclick="switchTab('vip')" id="tabBtnVip" class="px-4 py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-crown text-amber-400 ml-1"></i> منطقة VIP
+                </button>
+                <button onclick="switchTab('shortcuts')" id="tabBtnShortcuts" class="px-4 py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-bolt text-emerald-400 ml-1"></i> السحب الفوري
+                </button>
+            </div>
+
+            <!-- Days Left Indicator -->
+            <div class="hidden md:flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-extrabold text-emerald-400">
+                <i class="fa-solid fa-clock"></i>
+                <span id="headerDaysLeft">متبقي على الرواتب: -- يوم</span>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-6 w-full flex-1">
+
+        <!-- SECTION 1: TAB MAIN -->
+        <div id="sectionMain" class="space-y-6">
+
+            <!-- Card 1: Salary Setup Controls -->
+            <div class="bg-card p-6 rounded-3xl space-y-6 shadow-xl border border-slate-800/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-extrabold text-white">إعداد الراتب والادخار المخصص</h2>
+                            <p class="text-xs text-slate-400 font-bold">حدد راتبك أو مكافأتك بنسبة الادخار لتقسيم الميزانية تلقائياً</p>
+                        </div>
+                    </div>
+                    <!-- Direct Salary Type Selector -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold text-slate-400">نوع الدخل:</label>
+                        <select id="salaryTypeSelect" onchange="changeSalaryType()" class="bg-slate-900 text-amber-400 border border-slate-700 rounded-xl px-3 py-2 text-xs font-extrabold focus:outline-none">
+                            <option value="student_27">طالب جامعي (يوم 27)</option>
+                            <option value="student_25">طالب جامعي (يوم 25)</option>
+                            <option value="employee_27">موظف قطاع حكومي (يوم 27)</option>
+                            <option value="private_1">موظف قطاع خاص (يوم 1)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Sliders & Open Amounts Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Salary Input & Slider -->
+                    <div class="space-y-3 bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span class="text-slate-400">الراتب / المكافأة الكلي:</span>
+                            <span class="text-emerald-400 font-black text-sm" id="salaryDisplayVal">3,000 ر.س</span>
+                        </div>
+                        <input type="range" id="salaryRange" min="500" max="50000" step="100" value="3000" oninput="onSalaryRangeChange()" class="w-full accent-emerald-500 slider-thumb">
+                        <div class="flex items-center gap-2 pt-1">
+                            <span class="text-xs text-slate-400 font-bold">تعديل مباشر:</span>
+                            <input type="number" id="salaryInputDirect" oninput="onSalaryDirectChange()" placeholder="أدخل أي مبلغ مفتوح" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-black text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+
+                    <!-- Savings Input & Slider -->
+                    <div class="space-y-3 bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span class="text-slate-400">نسبة الادخار المستهدفة:</span>
+                            <span class="text-amber-400 font-black text-sm" id="savingsPercentDisplayVal">20%</span>
+                        </div>
+                        <input type="range" id="savingsRange" min="0" max="60" step="5" value="20" oninput="onSavingsRangeChange()" class="w-full accent-amber-400 slider-thumb">
+                        <div class="flex items-center gap-2 pt-1">
+                            <span class="text-xs text-slate-400 font-bold">مبلغ ادخار ثابت:</span>
+                            <input type="number" id="savingsInputDirect" oninput="onSavingsDirectChange()" placeholder="مبلغ ادخار مباشر" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-black text-white focus:outline-none focus:border-amber-400">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Summary Display Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <div class="bg-card p-5 rounded-3xl border-r-4 border-r-emerald-500 flex items-center justify-between shadow-lg">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">إجمالي الراتب</span>
+                        <p class="text-2xl font-black text-white" id="statSalary">3,000 <span class="text-xs font-bold text-emerald-400">ر.س</span></p>
+                        <span class="text-[10px] text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> مبلغ مكتمل ومتاح</span>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+                </div>
+
+                <div class="bg-card p-5 rounded-3xl border-r-4 border-r-amber-400 flex items-center justify-between shadow-lg">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">الادخار المستقطع</span>
+                        <p class="text-2xl font-black text-amber-400" id="statSavings">600 <span class="text-xs font-bold text-amber-400">ر.س</span></p>
+                        <span class="text-[10px] text-amber-400 font-bold"><i class="fa-solid fa-piggy-bank"></i> محول للمحفظة</span>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-400/10 border border-amber-400/30 text-amber-400 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-vault"></i>
+                    </div>
+                </div>
+
+                <div class="bg-card p-5 rounded-3xl border-r-4 border-r-rose-500 flex items-center justify-between shadow-lg">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">إجمالي المصروفات</span>
+                        <p class="text-2xl font-black text-rose-500" id="statExpenses">0 <span class="text-xs font-bold text-rose-500">ر.س</span></p>
+                        <span class="text-[10px] text-rose-400 font-bold" id="statExpensesCount"><i class="fa-solid fa-receipt"></i> 0 عمليات مسجلة</span>
+                    </div>
+                    <div class="w-12 h-12 bg-rose-500/10 border border-rose-500/30 text-rose-500 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                </div>
+
+                <div class="bg-card p-5 rounded-3xl border-r-4 border-r-sky-400 flex items-center justify-between shadow-lg">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">المتبقي المتاح للصرف</span>
+                        <p class="text-2xl font-black text-emerald-400" id="statRemaining">2,400 <span class="text-xs font-bold text-emerald-400">ر.س</span></p>
+                        <span class="text-[10px] text-emerald-400 font-bold"><i class="fa-solid fa-scale-balanced"></i> سيولة حرة بالكامل</span>
+                    </div>
+                    <div class="w-12 h-12 bg-sky-400/10 border border-sky-400/30 text-sky-400 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Middle Row: Chart & AI Assistant & Invoice Management -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Donut Chart Box -->
+                <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-emerald-400"></i> تحليل ميزانية الشهر
+                        </h3>
+                        <p class="text-[11px] text-slate-400 font-bold mt-0.5">رسم بياني لتوزيع الدخل المتاح والادخار</p>
+                    </div>
+                    
+                    <div class="w-48 h-48 mx-auto relative flex items-center justify-center">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-4 text-[11px] font-bold text-slate-400 pt-2 border-t border-slate-800">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> متبقي</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> ادخار</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> نفقات</span>
+                    </div>
+                </div>
+
+                <!-- AI Financial Smart Assistant & Interactive Chat -->
+                <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4 lg:col-span-2 flex flex-col justify-between">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-extrabold text-white">مستشارك المالي الذكي</h3>
+                                <p class="text-[10px] text-slate-400 font-bold">تحليل محفظتك والإجابة المباشرة على استفساراتك</p>
+                            </div>
+                        </div>
+                        <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-lg">تفاعلي 24/7</span>
+                    </div>
+
+                    <!-- Chat Window Area -->
+                    <div id="aiChatWindow" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 h-48 overflow-y-auto space-y-3 custom-scrollbar text-xs">
+                        <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700/60 max-w-[85%] text-slate-200 space-y-1">
+                            <span class="text-[10px] font-black text-emerald-400 block"><i class="fa-solid fa-wand-magic-sparkles"></i> المستشار المالي:</span>
+                            <p class="leading-relaxed font-bold" id="aiDynamicAdvice">
+                                أهلاً بك! ميزانيتك متزنة حالياً بنسبة ادخار 20%. يمكنك كتابة أي استفسار لي أو استخدام الأزرار السريعة أدناه!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Suggestions Actions -->
+                    <div class="space-y-2">
+                        <span class="text-[10px] font-bold text-slate-400">إجراءات سريعة مقترحة:</span>
+                        <div class="flex flex-wrap gap-2 text-[11px] font-extrabold">
+                            <button onclick="quickAddExpense('قهوة', 18)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-xl transition">
+                                + قهوة 18 ر.س
+                            </button>
+                            <button onclick="quickAddExpense('مقاضي', 120)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-xl transition">
+                                + مقاضي 120 ر.س
+                            </button>
+                            <button onclick="askAiQuestion('كيف أستثمر المبلغ المتبقي؟')" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl transition">
+                                💡 كيف أستثمر المتبقي؟
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Input Chat Box -->
+                    <div class="flex items-center gap-2 pt-2 border-t border-slate-800">
+                        <input type="text" id="aiUserInput" onkeypress="handleAiKeyPress(event)" placeholder="اكتب سؤالك أو استفسارك هنا للمساعد الذكي..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+                        <button onclick="sendAiMessage()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs shadow transition">
+                            إرسال <i class="fa-solid fa-paper-plane mr-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Invoices & Deductions List Management (مع إمكانية التعديل) -->
+            <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-extrabold text-white">إدارة الخصومات والتعديل المباشر على الفواتير</h3>
+                            <p class="text-[11px] text-slate-400 font-bold">يمكنك إضافة، تعديل، أو حذف أي فاتورة بسهولة</p>
+                        </div>
+                    </div>
+                    <button onclick="clearAllExpenses()" class="text-xs text-rose-400 font-bold hover:underline">
+                        <i class="fa-solid fa-trash"></i> مسح كامل السجل
+                    </button>
+                </div>
+
+                <!-- Add Expense Input Bar -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <input type="text" id="expTitleInput" placeholder="جهة الصرف (مثال: فاتورة كهرباء / مقاضي)" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+                    <input type="number" id="expAmountInput" placeholder="المبلغ (ر.س)" class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+                    <button onclick="addManualExpense()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
+                        إضافة خصم <i class="fa-solid fa-plus mr-1"></i>
+                    </button>
+                </div>
+
+                <!-- Expense Transactions List -->
+                <div id="expenseTransactionsList" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pt-2">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 2: TAB VIP (مميزات المشتركين ونصائح التوفير) -->
+        <div id="sectionVip" class="hidden space-y-6">
+            
+            <div class="bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-slate-900 p-6 rounded-3xl border border-amber-500/30 space-y-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-xl font-black">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-extrabold text-amber-400">منطقة المشتركين VIP والتوفير المتقدم</h2>
+                        <p class="text-xs text-slate-300 font-bold">أدوات حصرية واستراتيجيات بناء الثروة وتقليل الهدر من الراتب</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Salary Split Calculator & Financial Forecasting -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- 50/30/20 Rule Box -->
+                <div class="bg-card p-5 rounded-3xl border border-slate-800 space-y-3">
+                    <h3 class="text-xs font-black text-emerald-400 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie"></i> تقسيم الراتب المثالي (50/30/20)
+                    </h3>
+                    <p class="text-[11px] text-slate-400 font-bold">توزيع علمي معتمد لحماية ميزانيتك:</p>
+                    <div class="space-y-2 text-xs font-extrabold">
+                        <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-300">الاحتياجات (50%):</span>
+                            <span id="vipRuleNeeds" class="text-emerald-400">1,500 ر.س</span>
+                        </div>
+                        <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-300">الرغبات (30%):</span>
+                            <span id="vipRuleWants" class="text-amber-400">900 ر.س</span>
+                        </div>
+                        <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-300">الادخار والاستثمار (20%):</span>
+                            <span id="vipRuleSavings" class="text-sky-400">600 ر.س</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Savings Growth Forecast -->
+                <div class="bg-card p-5 rounded-3xl border border-slate-800 space-y-3">
+                    <h3 class="text-xs font-black text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line"></i> نمو مدخراتك المستقبلي
+                    </h3>
+                    <p class="text-[11px] text-slate-400 font-bold">الرصيد التراكمي للادخار الحالي:</p>
+                    <div class="space-y-2 text-xs font-extrabold">
+                        <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-300">بعد 6 أشهر:</span>
+                            <span id="vipForecast6M" class="text-amber-400">3,600 ر.س</span>
+                        </div>
+                        <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-300">بعد سنة كاملة:</span>
+                            <span id="vipForecast1Y" class="text-emerald-400">7,200 ر.س</span>
+                        </div>
+                        <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-300">بعد 3 سنوات:</span>
+                            <span id="vipForecast3Y" class="text-sky-400">21,600 ر.س</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal Jars / Challenges -->
+                <div class="bg-card p-5 rounded-3xl border border-slate-800 space-y-3">
+                    <h3 class="text-xs font-black text-sky-400 flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye"></i> حصالات الأهداف المتاحة
+                    </h3>
+                    <p class="text-[11px] text-slate-400 font-bold">تحديد هدف ادخاري خاص:</p>
+                    <div class="space-y-2">
+                        <input type="text" id="goalTitleInput" placeholder="اسم الهدف (مثال: طوارئ / سفر)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none">
+                        <input type="number" id="goalTargetInput" placeholder="المبلغ المستهدف (ر.س)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none">
+                        <button onclick="setSavingsGoal()" class="w-full bg-sky-500 hover:bg-sky-600 text-slate-950 font-black py-2 rounded-xl text-xs shadow">
+                            تحديد الهدف
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- VIP Financial Tips List -->
+            <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4">
+                <h3 class="text-sm font-extrabold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-amber-400"></i> دليل نصائح التوفير والادخار من الراتب
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold">
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-1">
+                        <span class="text-emerald-400 font-black flex items-center gap-1.5"><i class="fa-solid fa-1"></i> القاعدة الذهبية (ادخر أولاً)</span>
+                        <p class="text-slate-300 leading-relaxed font-medium">حول مبلغ الادخار لحساب فرعي فور استلام الراتب، ولا تنتظر حتى نهاية الشهر لصرف ما تبقى.</p>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-1">
+                        <span class="text-amber-400 font-black flex items-center gap-1.5"><i class="fa-solid fa-2"></i> قاعدة الـ 24 ساعة للعمليات غير الضرورية</span>
+                        <p class="text-slate-300 leading-relaxed font-medium">قبل شراء أي منتج غير أساسي تتجاوز قيمته 100 ريال، انتظر 24 ساعة للتأكد من مدى حاجتك الحقيقية له.</p>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-1">
+                        <span class="text-sky-400 font-black flex items-center gap-1.5"><i class="fa-solid fa-3"></i> معالجة الاشتراكات الخفية</span>
+                        <p class="text-slate-300 leading-relaxed font-medium">راجع تطبيقاتك واشتراكاتك الشهرية (تطبيقات، رياضية، ترفيه) وقم بإلغاء ما لا تستخدمه بانتظام.</p>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-1">
+                        <span class="text-rose-400 font-black flex items-center gap-1.5"><i class="fa-solid fa-4"></i> ميزانية المصاريف اليومية الصغيرة</span>
+                        <p class="text-slate-300 leading-relaxed font-medium">المصاريف اليومية الصغيرة مثل المشروبات والوجبات الجاهزة تؤثر بشكل كبير على الراتب التراكمي.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 3: TAB SHORTCUTS (ربط السحب الفوري بـ Apple Shortcuts) -->
+        <div id="sectionShortcuts" class="hidden space-y-6">
+            
+            <div class="bg-card p-6 rounded-3xl border border-slate-800 space-y-4">
+                <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-white">نظام الربط مع Apple Shortcuts والخصم الفوري</h2>
+                        <p class="text-xs text-slate-400 font-bold">ربط الخصومات البنكية التلقائية بمحفظتك فور وصول الرسالة النصية</p>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                    يمكنك استخدام رابط التطبيق المباشر المخصص للـ Automation في اختصارات الآيفون لخصم المبالغ فوراً وتحديث المتبقي في الراتب بدون الحاجة للإدخال اليدوي.
+                </p>
+
+                <div class="bg-slate-950 text-emerald-400 p-4 rounded-2xl font-mono text-xs break-all border border-slate-800 select-all" id="shortcutUrlDisplay">
+                    https://anasalosilan-rgb.github.io/wafir/w.html?amount=150&title=سوبرماركت
+                </div>
+
+                <div class="space-y-2 text-xs font-bold text-slate-400">
+                    <p class="text-white"><i class="fa-solid fa-check text-emerald-400 ml-1"></i> كيفية الإعداد في الآيفون:</p>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-300 font-medium">
+                        <li>افتح تطبيق Shortcuts واختر Automation (التحكم الآلي).</li>
+                        <li>اختر Message (عند وصول رسالة نصية تحتوي على كلمة "خصم" أو اسم البنك).</li>
+                        <li>أضف إجراء <code class="text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded">Open URL</code> وضغط على رابط التطبيق مع إضافة المتغيرات.</li>
+                    </ol>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Admin Panel (لوحة الأدمن الخارجية الخاصة بـ انس محمد العسيلان) -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-card max-w-3xl w-full p-6 rounded-3xl border border-slate-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                    <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield text-emerald-400"></i> لوحة التحكم الإدارية الخاصة - انس محمد العسيلان
+                    </h3>
+                    <p class="text-[11px] text-slate-400 font-bold">إدارة قاعدة البيانات والمشتركين والاشتراكات (5 ر.س/شهرياً)</p>
+                </div>
+                <button onclick="toggleAdminModal(false)" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Analytics Cards -->
+            <div class="grid grid-cols-3 gap-3 text-center text-xs font-bold">
+                <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                    <span class="text-slate-400 block text-[10px]">إجمالي المشتركين</span>
+                    <span class="text-xl font-black text-white" id="adminCountTotal">0</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                    <span class="text-slate-400 block text-[10px]">الاشتراكات النشطة</span>
+                    <span class="text-xl font-black text-emerald-400" id="adminCountActive">0</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                    <span class="text-slate-400 block text-[10px]">الدخل الشهري المتوقع</span>
+                    <span class="text-xl font-black text-amber-400" id="adminRevenueVal">0 ر.س</span>
+                </div>
+            </div>
+
+            <!-- Manual Add Subscriber -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                <input type="text" id="adminNewSubName" placeholder="اسم المشترك" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none">
+                <input type="tel" id="adminNewSubPhone" placeholder="رقم الجوال" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none">
+                <button onclick="adminAddSubscriber()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs py-2 shadow">
+                    إضافة مشترك
+                </button>
+            </div>
+
+            <!-- Subscribers Table -->
+            <div class="overflow-x-auto pt-2">
+                <table class="w-full text-right text-xs">
+                    <thead>
+                        <tr class="text-slate-400 border-b border-slate-800">
+                            <th class="pb-2">اسم المشترك</th>
+                            <th class="pb-2">رقم الجوال</th>
+                            <th class="pb-2">التاريخ</th>
+                            <th class="pb-2">الحالة</th>
+                            <th class="pb-2 text-center">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminSubscribersTable" class="divide-y divide-slate-800 font-bold text-slate-200">
+                        <!-- Dynamic Subscribers -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 bg-[#0c1422]">
+        حقوق التطوير محفوظة © <span class="font-extrabold text-emerald-400" id="footerAuthor">انس محمد العسيلان</span> - تطبيق وفير VIP
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State
+        let currentSalary = parseFloat(localStorage.getItem('wafir_salary')) || 3000;
+        let savingsPercent = parseFloat(localStorage.getItem('wafir_savings_percent')) || 20;
+        let fixedSavings = parseFloat(localStorage.getItem('wafir_fixed_savings')) || 0;
+        let transactions = JSON.parse(localStorage.getItem('wafir_tx')) || [];
+        let subscribers = JSON.parse(localStorage.getItem('wafir_subscribers')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('wafir_user')) || null;
+        let salaryType = localStorage.getItem('wafir_salary_type') || 'student_27';
+        let chartInstance = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkUserAuth();
+            initChart();
+            checkUrlParameters();
+            updateAllCalculations();
+            updatePaydayCountdown();
+            setInterval(updatePaydayCountdown, 1000);
+        });
+
+        function checkUserAuth() {
+            if (!currentUser || !currentUser.name) {
+                document.getElementById('registrationScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('registrationScreen').classList.add('hidden');
+                document.getElementById('welcomeUserBanner').innerText = `أهلاً بك، ${currentUser.name}`;
+            }
+        }
+
+        function submitUserRegistration() {
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            if (!name) return alert('يرجى إدخال اسمك الكريم');
+
+            currentUser = { name, phone, date: new Date().toLocaleDateString('ar-SA') };
+            localStorage.setItem('wafir_user', JSON.stringify(currentUser));
+
+            if (!subscribers.some(s => s.phone === phone && phone !== '')) {
+                subscribers.unshift({ id: Date.now(), name, phone, date: new Date().toLocaleDateString('ar-SA'), status: 'نشط' });
+                localStorage.setItem('wafir_subscribers', JSON.stringify(subscribers));
+            }
+
+            document.getElementById('registrationScreen').classList.add('hidden');
+            document.getElementById('welcomeUserBanner').innerText = `أهلاً بك، ${currentUser.name}`;
+        }
+
+        function checkUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoAmount = parseFloat(urlParams.get('amount'));
+            const autoTitle = urlParams.get('title') || urlParams.get('source') || 'خصم بنكي تلقائي';
+
+            if (autoAmount && autoAmount > 0) {
+                transactions.unshift({ id: Date.now(), title: autoTitle, amount: autoAmount });
+                localStorage.setItem('wafir_tx', JSON.stringify(transactions));
+            }
+
+            document.getElementById('shortcutUrlDisplay').innerText = `${window.location.origin}${window.location.pathname}?amount=150&title=خصم_سوبرماركت`;
+        }
+
+        /* Update Calculations & UI */
+        function updateAllCalculations() {
+            document.getElementById('salaryRange').value = currentSalary;
+            document.getElementById('salaryDisplayVal').innerText = `${currentSalary.toLocaleString()} ر.س`;
+            document.getElementById('salaryInputDirect').value = currentSalary;
+
+            let actualSavings = fixedSavings > 0 ? fixedSavings : Math.round(currentSalary * (savingsPercent / 100));
+            document.getElementById('savingsRange').value = savingsPercent;
+            document.getElementById('savingsPercentDisplayVal').innerText = `${savingsPercent}%`;
+            document.getElementById('savingsInputDirect').value = actualSavings;
+
+            const totalExpenses = transactions.reduce((acc, t) => acc + t.amount, 0);
+            const remaining = currentSalary - (actualSavings + totalExpenses);
+
+            document.getElementById('statSalary').innerHTML = `${currentSalary.toLocaleString()} <span class="text-xs font-bold text-emerald-400">ر.س</span>`;
+            document.getElementById('statSavings').innerHTML = `${actualSavings.toLocaleString()} <span class="text-xs font-bold text-amber-400">ر.س</span>`;
+            document.getElementById('statExpenses').innerHTML = `${totalExpenses.toLocaleString()} <span class="text-xs font-bold text-rose-500">ر.س</span>`;
+            document.getElementById('statRemaining').innerHTML = `${remaining.toLocaleString()} <span class="text-xs font-bold text-emerald-400">ر.س</span>`;
+            document.getElementById('statExpensesCount').innerText = `${transactions.length} عمليات مسجلة`;
+
+            // VIP Calculations
+            document.getElementById('vipRuleNeeds').innerText = `${Math.round(currentSalary * 0.5).toLocaleString()} ر.س`;
+            document.getElementById('vipRuleWants').innerText = `${Math.round(currentSalary * 0.3).toLocaleString()} ر.س`;
+            document.getElementById('vipRuleSavings').innerText = `${Math.round(currentSalary * 0.2).toLocaleString()} ر.س`;
+
+            document.getElementById('vipForecast6M').innerText = `${(actualSavings * 6).toLocaleString()} ر.س`;
+            document.getElementById('vipForecast1Y').innerText = `${(actualSavings * 12).toLocaleString()} ر.س`;
+            document.getElementById('vipForecast3Y').innerText = `${(actualSavings * 36).toLocaleString()} ر.س`;
+
+            renderTransactionsList();
+            updateChartAndAdvice(currentSalary, actualSavings, totalExpenses, remaining);
+
+            localStorage.setItem('wafir_salary', currentSalary);
+            localStorage.setItem('wafir_savings_percent', savingsPercent);
+            localStorage.setItem('wafir_fixed_savings', fixedSavings);
+        }
+
+        /* Handlers for Sliders & Inputs */
+        function onSalaryRangeChange() {
+            currentSalary = parseFloat(document.getElementById('salaryRange').value) || 0;
+            updateAllCalculations();
+        }
+
+        function onSalaryDirectChange() {
+            const val = parseFloat(document.getElementById('salaryInputDirect').value);
+            if (!isNaN(val) && val >= 0) {
+                currentSalary = val;
+                updateAllCalculations();
+            }
+        }
+
+        function onSavingsRangeChange() {
+            savingsPercent = parseFloat(document.getElementById('savingsRange').value) || 0;
+            fixedSavings = 0;
+            updateAllCalculations();
+        }
+
+        function onSavingsDirectChange() {
+            const val = parseFloat(document.getElementById('savingsInputDirect').value);
+            if (!isNaN(val) && val >= 0) {
+                fixedSavings = val;
+                savingsPercent = currentSalary > 0 ? Math.round((val / currentSalary) * 100) : 0;
+                updateAllCalculations();
+            }
+        }
+
+        function changeSalaryType() {
+            salaryType = document.getElementById('salaryTypeSelect').value;
+            localStorage.setItem('wafir_salary_type', salaryType);
+            updatePaydayCountdown();
+        }
+
+        /* Transactions List with Direct Edit Feature */
+        function renderTransactionsList() {
+            const listEl = document.getElementById('expenseTransactionsList');
+            if (transactions.length === 0) {
+                listEl.innerHTML = `<p class="text-[11px] text-slate-500 font-bold text-center py-3">لا توجد خصومات أو فواتير مسجلة حالياً</p>`;
+                return;
+            }
+
+            listEl.innerHTML = transactions.map((t) => `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs font-bold">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-receipt"></i>
+                        </span>
+                        <div>
+                            <span class="text-white block">${t.title}</span>
+                            <span class="text-[10px] text-slate-400">خصم من المحفظة</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-rose-400 font-extrabold text-sm">-${t.amount.toLocaleString()} ر.س</span>
+                        <!-- زر تعديل الفاتورة -->
+                        <button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-amber-400 transition" title="تعديل الفاتورة">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <!-- زر حذف الفاتورة -->
+                        <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-rose-400 transition" title="حذف الفاتورة">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addManualExpense() {
+            const title = document.getElementById('expTitleInput').value.trim();
+            const amount = parseFloat(document.getElementById('expAmountInput').value);
+
+            if (!amount || amount <= 0) return alert('يرجى كتابة مبلغ الخصم الصحيح');
+
+            transactions.unshift({
+                id: Date.now(),
+                title: title || 'خصم مباشر',
+                amount: amount
+            });
+
+            localStorage.setItem('wafir_tx', JSON.stringify(transactions));
+            document.getElementById('expTitleInput').value = '';
+            document.getElementById('expAmountInput').value = '';
+            updateAllCalculations();
+        }
+
+        function quickAddExpense(title, amount) {
+            transactions.unshift({ id: Date.now(), title, amount });
+            localStorage.setItem('wafir_tx', JSON.stringify(transactions));
+            updateAllCalculations();
+        }
+
+        /* تعديل الفاتورة المحددة */
+        function editTransaction(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+
+            const newTitle = prompt("تعديل اسم الفاتورة / جهة الصرف:", tx.title);
+            if (newTitle === null) return; // Cancelled
+
+            const newAmountStr = prompt("تعديل مبلغ الفاتورة (ر.س):", tx.amount);
+            if (newAmountStr === null) return;
+
+            const newAmount = parseFloat(newAmountStr);
+
+            if (!isNaN(newAmount) && newAmount > 0) {
+                tx.title = newTitle.trim() || "خصم معدل";
+                tx.amount = newAmount;
+                localStorage.setItem('wafir_tx', JSON.stringify(transactions));
+                updateAllCalculations();
+            } else {
+                alert("المبلغ غير صحيح!");
+            }
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            localStorage.setItem('wafir_tx', JSON.stringify(transactions));
+            updateAllCalculations();
+        }
+
+        function clearAllExpenses() {
+            if (confirm('هل أنت تأكد من مسح جميع الفواتير والخصومات المسجلة؟')) {
+                transactions = [];
+                localStorage.setItem('wafir_tx', JSON.stringify(transactions));
+                updateAllCalculations();
+            }
+        }
+
+        /* Chart & Advice Generator */
+        function initChart() {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['المتبقي', 'الادخار', 'النفقات'],
+                    datasets: [{
+                        data: [2400, 600, 0],
+                        backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+                        borderWidth: 2,
+                        borderColor: '#111c2e'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '75%'
+                }
+            });
+        }
+
+        function updateChartAndAdvice(sal, sav, exp, rem) {
+            if (chartInstance) {
+                chartInstance.data.datasets[0].data = [Math.max(rem, 0), sav, exp];
+                chartInstance.update();
+            }
+
+            const adviceEl = document.getElementById('aiDynamicAdvice');
+            if (rem < 0) {
+                adviceEl.innerText = "تنبيه هام! نفقاتك وادخارك تجاوزا قيمة الراتب المتاح. أنصحك بمراجعة الخصومات وتخفيض مصاريف غير الأساسيات.";
+            } else if (exp > sal * 0.6) {
+                adviceEl.innerText = "مصاريفك تستهلك أكثر من 60% من الراتب! حاور نفسك قبل الشراء القادم للوصول إلى نسبة ادخار متزنة.";
+            } else {
+                adviceEl.innerText = `وضعك المالي ممتاز جداً! المتبقي المتاح لديك هو ${rem.toLocaleString()} ر.س مع نسبة ادخار ${savingsPercent}%. استمر على هذا التنظيم!`;
+            }
+        }
+
+        /* Chat with Assistant */
+        function sendAiMessage() {
+            const inputEl = document.getElementById('aiUserInput');
+            const question = inputEl.value.trim();
+            if (!question) return;
+
+            askAiQuestion(question);
+            inputEl.value = '';
+        }
+
+        function handleAiKeyPress(e) {
+            if (e.key === 'Enter') sendAiMessage();
+        }
+
+        function askAiQuestion(q) {
+            const chatWin = document.getElementById('aiChatWindow');
+            chatWin.innerHTML += `
+                <div class="bg-emerald-500/10 border border-emerald-500/30 p-2.5 rounded-2xl text-emerald-300 font-bold max-w-[85%] mr-auto text-left">
+                    ${q}
+                </div>
+            `;
+
+            let reply = "أنا معك! استثمار المبلغ المتبقي في صناديق الادخار منخفضة المخاطر يضمن لك نمواً آمنًا لرأس مالك.";
+            if (q.includes('استثمر') || q.includes('أسهم')) {
+                reply = "أنصحك ببدء الادخار أولاً في محفظة الطوارئ (تغطي 3 أشهر)، ثم التوجه لصناديق الاستثمار المرخصة أو الصكوك الحكومية.";
+            } else if (q.includes('خصم') || q.includes('فاتورة')) {
+                reply = "يمكنك إضافة أي خصم يدويًا أو ربطه مع اختصارات الآيفون لتحديث المتبقي تلقائيًا.";
+            }
+
+            setTimeout(() => {
+                chatWin.innerHTML += `
+                    <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700/60 max-w-[85%] text-slate-200 space-y-1">
+                        <span class="text-[10px] font-black text-emerald-400 block"><i class="fa-solid fa-wand-magic-sparkles"></i> المستشار المالي:</span>
+                        <p class="leading-relaxed font-bold">${reply}</p>
+                    </div>
+                `;
+                chatWin.scrollTop = chatWin.scrollHeight;
+            }, 400);
+        }
+
+        /* Countdown Calculation with Weekend Rules */
+        function updatePaydayCountdown() {
+            const now = new Date();
+            let targetDay = 27;
+            if (salaryType === 'student_25') targetDay = 25;
+            if (salaryType === 'private_1') targetDay = 1;
+
+            let targetDate = new Date(now.getFullYear(), now.getMonth(), targetDay);
+            if (now > targetDate) {
+                targetDate = new Date(now.getFullYear(), now.getMonth() + 1, targetDay);
+            }
+
+            // الجمعة -> الخميس / السبت -> الأحد
+            const dayOfWeek = targetDate.getDay();
+            if (dayOfWeek === 5) targetDate.setDate(targetDate.getDate() - 1);
+            else if (dayOfWeek === 6) targetDate.setDate(targetDate.getDate() + 1);
+
+            const diff = targetDate - now;
+            const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('headerDaysLeft').innerText = `متبقي على الرواتب: ${daysLeft} يوم`;
+        }
+
+        /* Tab Switcher */
+        function switchTab(tab) {
+            document.getElementById('sectionMain').classList.add('hidden');
+            document.getElementById('sectionVip').classList.add('hidden');
+            document.getElementById('sectionShortcuts').classList.add('hidden');
+
+            document.getElementById('tabBtnMain').className = "px-4 py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white transition";
+            document.getElementById('tabBtnVip').className = "px-4 py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white transition";
+            document.getElementById('tabBtnShortcuts').className = "px-4 py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white transition";
+
+            if (tab === 'main') {
+                document.getElementById('sectionMain').classList.remove('hidden');
+                document.getElementById('tabBtnMain').className = "px-4 py-2 rounded-lg text-xs font-extrabold transition bg-emerald-500 text-slate-950 shadow";
+            } else if (tab === 'vip') {
+                document.getElementById('sectionVip').classList.remove('hidden');
+                document.getElementById('tabBtnVip').className = "px-4 py-2 rounded-lg text-xs font-extrabold transition bg-amber-400 text-slate-950 shadow";
+            } else if (tab === 'shortcuts') {
+                document.getElementById('sectionShortcuts').classList.remove('hidden');
+                document.getElementById('tabBtnShortcuts').className = "px-4 py-2 rounded-lg text-xs font-extrabold transition bg-emerald-500 text-slate-950 shadow";
+            }
+        }
+
+        /* Admin Dashboard Functions (رمز الدخول الجديد 1199) */
+        function openAdminModalPrompt() {
+            const pass = prompt("أدخل الرمز السري للوحة تحكم المطور (انس محمد العسيلان):");
+            if (pass === "1199") {
+                renderAdminData();
+                toggleAdminModal(true);
+            } else if (pass !== null) {
+                alert("رمز الدخول غير صحيح!");
+            }
+        }
+
+        function toggleAdminModal(show) {
+            const modal = document.getElementById('adminModal');
+            if (show) modal.classList.remove('hidden'), modal.classList.add('flex');
+            else modal.classList.add('hidden'), modal.classList.remove('flex');
+        }
+
+        function renderAdminData() {
+            document.getElementById('adminCountTotal').innerText = subscribers.length;
+            document.getElementById('adminCountActive').innerText = subscribers.filter(s => s.status === 'نشط').length;
+            document.getElementById('adminRevenueVal').innerText = `${subscribers.length * 5} ر.س`;
+
+            const tbody = document.getElementById('adminSubscribersTable');
+            tbody.innerHTML = subscribers.map(s => `
+                <tr>
+                    <td class="py-2.5">${s.name}</td>
+                    <td class="py-2.5">${s.phone || '-'}</td>
+                    <td class="py-2.5">${s.date || '-'}</td>
+                    <td class="py-2.5"><span class="text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md">${s.status}</span></td>
+                    <td class="py-2.5 text-center">
+                        <button onclick="adminDeleteSubscriber(${s.id})" class="text-rose-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function adminAddSubscriber() {
+            const name = document.getElementById('adminNewSubName').value.trim();
+            const phone = document.getElementById('adminNewSubPhone').value.trim();
+            if (!name) return;
+
+            subscribers.unshift({
+                id: Date.now(),
+                name,
+                phone,
+                date: new Date().toLocaleDateString('ar-SA'),
+                status: 'نشط'
+            });
+            localStorage.setItem('wafir_subscribers', JSON.stringify(subscribers));
+            document.getElementById('adminNewSubName').value = '';
+            document.getElementById('adminNewSubPhone').value = '';
+            renderAdminData();
+        }
+
+        function adminDeleteSubscriber(id) {
+            subscribers = subscribers.filter(s => s.id !== id);
+            localStorage.setItem('wafir_subscribers', JSON.stringify(subscribers));
+            renderAdminData();
+        }
+
+        function setSavingsGoal() {
+            const title = document.getElementById('goalTitleInput').value.trim();
+            const target = parseFloat(document.getElementById('goalTargetInput').value);
+            if (!title || !target) return alert('يرجى تحديد تفاصيل الهدف بشكل كامل');
+            alert(`تم إضافة الهدف الاستثماري "${title}" بمبلغ مستهدف ${target.toLocaleString()} ر.س بنجاح!`);
+        }
+    </script>
+</body>
+</html>
